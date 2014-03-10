@@ -1,0 +1,18 @@
+{
+  "name": "flexforever",
+  "repo": "https://github.com/OptimusLime/flexforever.git",
+  "description": "Mobile friendly infinite expanding grid slider. For use with things like interactive evolution. Based on swiper library.",
+  "version": "0.0.1",
+  "keywords": ["flexbox", "flexforever", "slider", "iec"],
+  "dependencies": {
+	"nolimits4web/swiper" : "*"
+  },
+  "scripts": [
+    "main.js"
+  ],
+  "main": "main.js",
+  "styles": [
+    "css/main.css"
+  ],
+  "license": ["MIT"]
+}
