@@ -11,6 +11,10 @@ pids
 logs
 results
 
+#component ignore
+build
+components
+
+#node ignore folders
 npm-debug.log
 node_modules
-components

@@ -1,4 +1,39 @@
+html
+{
+	height:100%;
+}
+body, #flexforever 
+{
+	margin:0;
+	line-height:1.5; 
+	position:relative;
+	height:100%;
+}
 
+.swiper-container
+{
+	width:100%;
+	height:100%;
+	text-align:center;
+}
 
+.swiper-slide
+{
+	font-size:42px; 
+	margin-bottom:0;
+	line-height:45px;
+}
 
+.flexvcenter {
+	display: -webkit-flex;
+	-webkit-flex-direction: row;
+	-webkit-flex-wrap: wrap;
+	/*display: flex;*/
+	align-items: center;
+	justify-content: center;
+}
 
+.grid-cell {
+  flex: 1;
+  align-self: center;
+}

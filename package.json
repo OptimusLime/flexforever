@@ -5,6 +5,7 @@
 },
 "devDependencies" : 
 {
+	"node-watch" : "*",
 	"express" : "*",
 	"mocha": "*",
 	"should": "*"
