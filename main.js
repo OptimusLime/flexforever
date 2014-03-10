@@ -121,7 +121,7 @@ function flexforever(divValue, reqOptions)
 
 				element.style.overflow = "hidden";
 				// element.className += "grid-cell";
-				element.innerHTML = "<div>nothing more to be said her overflow</div>";
+				element.innerHTML = "<div>"+objectUID+"</div>";
 
 				//then add this little bugger to our page anyways
 				innerDiv.appendChild(element);
@@ -139,9 +139,25 @@ function flexforever(divValue, reqOptions)
 		console.log("Inner page: ", innerPage, " child thing: ", innerPage.innerHTML);
 
 		fillPage(innerPage);
-	}
 
-	self.createNewPage();
+		self.swiper.swipeTo(page.sID);
+	}
+	self.previousPage = function()
+	{
+		//much more needs to be done here, but just swipe for now
+
+		self.swiper.swipePrev();
+
+
+	}
+	self.nextPage = function()
+	{
+		//much more needs to be done here, but just swipe for now
+
+		self.swiper.swipeNext();
+
+
+	}
 
 	return self;
 }
