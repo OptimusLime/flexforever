@@ -1,0 +1,13 @@
+{
+"name" : "flexforever",
+"version": "0.0.1",
+"dependencies": {
+},
+"devDependencies" : 
+{
+	"express" : "*",
+	"mocha": "*",
+	"should": "*"
+}
+
+}
