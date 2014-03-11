@@ -41,6 +41,27 @@
 
 			var nf = flex(div, flexOptions);
 
+
+			//when an object is created, we are informed, and have the option to add our information 
+			//in this case we're just adding test insides
+			nf.on('elementCreated', function(eID, eDiv)
+			{
+				// element.className += "grid-cell";
+				eDiv.innerHTML = "<div>"+eID+"</div>";
+			});
+
+			nf.on('elementVisible', function(eID, eDiv)
+			{
+				// element.className += "grid-cell";
+				eDiv.innerHTML = "<div>Vis: "+eID+"</div>";
+			});
+
+			nf.on('elementHidden', function(eID, eDiv)
+			{
+				// element.className += "grid-cell";
+				eDiv.innerHTML = "<div>Invis: "+eID+"</div>";
+			});
+
 			 document.getElementById('addPage').addEventListener('click', function (event) {
 			    nf.createNewPage();
 			 });

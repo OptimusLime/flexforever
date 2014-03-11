@@ -5,7 +5,8 @@
   "version": "0.0.1",
   "keywords": ["flexbox", "flexforever", "slider", "iec"],
   "dependencies": {
-	"nolimits4web/swiper" : "*"
+    "nolimits4web/swiper" : "*",
+    "component/emitter" : "*"
   },
   "scripts": [
     "main.js"
