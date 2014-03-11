@@ -46,6 +46,8 @@ function flexforever(divValue, reqOptions)
 
 	self.swiper = new Swiper('#' + swipeConID,{
 	    //Your options here:
+	    onSlideNext : nextSlide,
+	    onSlidePrev : previousSlide,
 	    // width: reqOptions.width,
 	    // height: reqOptions.height,
 	    // cssWidthAndHeight : true,
@@ -55,20 +57,23 @@ function flexforever(divValue, reqOptions)
 	    //etc..
 	});  
 
-	var uidCount = 0;
+	var slideIDs = 0;
+	var totalSlideCount = 5;
+	var currentDisplayedSlide = 0;
+	var currentPageStartID = 0;
 	var htmlObjects = {};
 	var pageObjects = {};
-	var currentPageStartID = 0;
-	var slideIDs = 0;
 
 	var itemsPerRow = function()
 	{
 		return Math.floor(self.swiper.width/(self.objectSize.width + 2*(self.objectSize.rowMargin || 0 + self.borderSize)));
 	}
+
 	var itemsPerColumn = function()
 	{
 		return Math.floor(self.swiper.height/(self.objectSize.height + 2*(self.objectSize.columnMargin || 0 + self.borderSize)));
 	}
+
 	var maxItemsPerPage = function()
 	{
 		//the number = number holdable in a row * number of columns
@@ -88,17 +93,25 @@ function flexforever(divValue, reqOptions)
 		self.swiper.reInit();
 
 		return slide;
-
 	}
 
-	self.resize = function()
+	var getOrCreatePage = function(pID)
 	{
-		if(!self.swiper.width || !self.swiper.height)
+		var page = pageObjects[pID];
+		if(!page)
 		{
-			throw new Error("Swiper doesn't have any width or height for sizing container")
-		}
+			//simple outline for each of our pages/slides
+			var pageOutline = "<div class=\"flexvcenter\" style=\"border: 1px solid black; height:100%;\"></div>"
 
+			//generate the page using our internal function
+			var page = internalAddPage(pageOutline);
+
+			//set page object for this id
+			pageObjects[page.sID] = page;
+		}
+		return page;
 	}
+
 	var objectIDToUID = function(idCount)
 	{
 		return self.uid + "-object-" + idCount;
@@ -110,6 +123,7 @@ function flexforever(divValue, reqOptions)
 		return htmlObjects[objectUID];
 	}
 
+	//create an element from scratch (using the given identifier)
 	var createElement = function(ix)
 	{
 		var element = document.createElement('div');
@@ -130,122 +144,145 @@ function flexforever(divValue, reqOptions)
 		return element;
 	}
 
-	var createElementsForPage = function(innerDiv)
+	var getOrCreateElement = function(id, innerDiv)
+	{
+		//Check if we've created an object for this spot already (no dupes)
+		var element = getElement(id);
+		// if we haven't, we need to fix that
+		if(!element && innerDiv)
+		{
+			//create the html object
+			element = createElement(id);
+			//add it to our cache of objects
+			htmlObjects[objectIDToUID(id)] = element;
+
+			//then add this little bugger to our page anyways
+			innerDiv.appendChild(element);
+
+			//inform someone this happened
+			self.emit('elementCreated', element.id, element);
+		}
+	}
+
+	//we fill a page with as many objects that can fit
+	var getOrCreateElements = function(pID, startingID, count)
 	{	
-		var rowItems = itemsPerRow();
-		var colItems = itemsPerColumn();
+		//get the page we want to add it to
+		var page = getOrCreatePage(pID);
+		var innerDiv = page.firstElementChild;
 
-		console.log('Width: ', self.swiper.width, " height: ", self.swiper.height);
-		console.log("Row: ", rowItems, " col: ", colItems);
+		//do we clear out the previous occupants?
+		var fc = innerDiv.firstChild;
 
-		var ix = 0;
-		for(var r=0; r < rowItems; r++)
-		{
-			for(var c=0; c < colItems; c++)
-			{
-				var id = currentPageStartID + ix;
-				
-				//Check if we've created an object for this spot already (no dupes)
-				var element = getElement(id);
-				// if we haven't, we need to fix that
-				if(!element && innerDiv)
-				{
-					//create the html object
-					element = createElement(id);
-					//add it to our cache of objects
-					htmlObjects[objectIDToUID(id)] = element;
-
-					//then add this little bugger to our page anyways
-					innerDiv.appendChild(element);
-
-					//inform someone this happened
-					self.emit('elementCreated', element.id, element);
-				}
-				
-				ix++;
-			}
+		while( fc ) {
+		    innerDiv.removeChild( fc );
+		    fc = innerDiv.firstChild;
 		}
 
-		//ix represents how many objects we've annouced to
-		return ix;		
+		//let's add in our objects -- using the count
+		for(var i=0; i < count; i++)
+		{
+			getOrCreateElement(startingID + i, innerDiv);
+		}	
 	}
 
-	var emitEventForCurrentPage = function(eventName, startID, pageDiv)
+	var emitEventForElements = function(eventName, startingID, count)
 	{
-		//let all current elements know they're being hidden
-		var currentPage = pageDiv || self.swiper.activeSlide();
-
-		var startID = (startID == undefined ? currentPageStartID : startID); 
-
-		//grab the children -- we'll see how many to loop through
-		var elementCount = currentPage.firstElementChild.children.length;
-
-		for(var i=0; i < elementCount; i++)
+				//let's add in our objects -- using the count
+		for(var i=0; i < count; i++)
 		{
-			var element = getElement(currentPageStartID + i);
+			var element = getElement(startingID + i);
 			self.emit(eventName, element.id, element);
-		}
-
-		//return the number of affected elements
-		return elementCount;	
-	}
-	var showPage = function(pageDiv)
-	{
-		return emitEventForCurrentPage('elementVisible', pageDiv);
+		}	
 	}
 
-	var hidePage = function(pageDiv)
+	var pageElementCount = function(pID)
 	{
-		return emitEventForCurrentPage('elementHidden', pageDiv);		
+		//What page are we looking at? If not mentioned, then take the current page
+		pID = (pID == undefined ? currentDisplayedSlide : pID);
+		
+		//grab our page
+		var page = pageObjects[pID];
+
+		if(page && page.firstElementChild)
+			return page.firstElementChild.children.length;
+		else
+			throw new Error("Invalid page element count request: ", pID);
+	}
+	var nextPageID = function()
+	{
+		return (self.swiper.activeSlide().sID + 1);// % totalSlideCount;
+	}
+
+	var previousPageID = function()
+	{
+		return (self.swiper.activeSlide().sID - 1);
+	}
+
+	//we're moving to the next slide
+	function nextSlide()
+	{
+		console.log('Choo choo on the next train');
+	}
+	function previousSlide()
+	{
+		console.log('back it up, previous please');
 	}
 
 	self.createNewPage = function()
 	{
-		var pageOutline = "<div class=\"flexvcenter\" style=\"border: 1px solid black; height:100%;\"></div>"
-		var page = internalAddPage(pageOutline);
-		var innerPage = page.firstElementChild;
 
-		pageObjects[page.sID] = page;
+		var currentPage = pageObjects[currentDisplayedSlide];
 
-		console.log("Inner page: ", innerPage, " child thing: ", innerPage.innerHTML);
-
-		var totalCreated = createElementsForPage(innerPage);
-
-
-
-
-		//modified current page!
-		currentPageStartID += totalAnnounced;
-
-		self.moveToPage(page.sID);
-	}
-	self.moveToPage = function(pID)
-	{
-		var cSlideID = self.swiper.activeSlide().sID;
-
-		var pageDif = (pID - cSlideID);
-
-		//if it's not 0, then we're moving away from this page
-		if(pageDif)
+		if(!currentPage)
 		{
-			//tell all on page, they're being hidden
-			hideCurrentPage();
+			//need to create our page, we don't have anything yet!
 
-			//we are moving (positive or negative), we should start with a particular object
-			var newStartID = currentPageStartID + pageDif*ipp;
+			//this wil create teh page
+			currentPage = getOrCreatePage(currentDisplayedSlide);
 
-			//set our currentID to the new ID
-			currentPageStartID = newStartID;
+			//how many can we fit on this new page
+			var maxIPP = maxItemsPerPage();
 
-			//if the page exists, we'll let it know we're hosting some new content
-			announceToPage('elementVisible', pageObjects[pID]);
+			//then put stuff inside of it 
+			getOrCreateElements(currentDisplayedSlide, currentPageStartID, maxIPP);
 
-			//now let's move (provided it's different)
-			self.swiper.swipeTo(pID);
+			//we should automatically be setup here
 
+			return;
 		}
-		
+
+		//we need to create a bunch of new objects
+		//first, how many objects on teh current page displayed
+		var currentElementCount = currentPage.firstElementChild.children.length;
+
+		//the next page starts after all the objects on the current page duh
+		var nextPageStart = currentPageStartID + currentElementCount;
+
+		//how many can we fit on this new page
+		var maxIPP = maxItemsPerPage();
+
+		//let's inform the current batch, they're going to be hidden
+		emitEventForElements('elementHidden', currentPageStartID, currentElementCount);
+
+		//now we need to create a bunch of objects in the next page over
+		var nextPID = nextPageID();
+
+		//we have the page we're going to load things onto, and what we're hoping to create
+		//load up all the necessary objects onto this new page
+		getOrCreateElements(nextPID, nextPageStart, maxIPP);
+
+		//now we need to officially move to the next page
+		self.swiper.swipeTo(nextPID);
+
+		//move our start points for the page, and the objects to our new page
+		currentPageStartID = nextPageStart;
+		currentDisplayedSlide = nextPID;
+
+		//let all our objects know of their new shiny home
+		emitEventForElements('elementVisible', currentPageStartID, maxIPP);
 	}
+
 
 	self.previousPage = function()
 	{
@@ -263,8 +300,6 @@ function flexforever(divValue, reqOptions)
 			//now we're at another place
 			//move backwards that many elements
 			currentPageStartID -= elementsHidden;
-
-
 
 			//read to swipe away
 			self.swiper.swipePrev();
