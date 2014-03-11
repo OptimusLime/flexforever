@@ -9,7 +9,7 @@ var uSwipeID = 0;
 
 function flexforever(divValue, reqOptions)
 {
-	console.log(divValue);
+	// console.log(divValue);
 
 	var self = this;
 
@@ -42,7 +42,7 @@ function flexforever(divValue, reqOptions)
 
 	self.borderSize = 1;
 
-	console.log(divValue.innerHTML);
+	// console.log(divValue.innerHTML);
 
 	self.swiper = new Swiper('#' + swipeConID,{
 	    //Your options here:
@@ -235,7 +235,7 @@ function flexforever(divValue, reqOptions)
 	//we're moving to the next slide
 	function nextSlide(sw)
 	{
-		console.log('Slidin -> 2 steps: ', sw.activeSlide().sID);
+		// console.log('Slidin -> 2 steps: ', sw.activeSlide().sID);
 
 		var movedTo = sw.activeSlide().sID;
 
@@ -258,7 +258,7 @@ function flexforever(divValue, reqOptions)
 	}
 	function previousSlide(sw)
 	{
-		console.log('Slidin back: ', sw.activeSlide().sID, ' from ', currentDisplayedSlide);
+		// console.log('Slidin back: ', sw.activeSlide().sID, ' from ', currentDisplayedSlide);
 
 		var movedTo = sw.activeSlide().sID;
 
@@ -271,8 +271,8 @@ function flexforever(divValue, reqOptions)
 		//how far are we really moving though? Might not just be a single slide (you can scroll multiple by draggin far distances)
 		var fullElementCount = sumPageCount(currentDisplayedSlide, movedTo);
 
-		console.log('Current place: ', currentPageStartID);
-		console.log('Full count: ', fullElementCount);
+		// console.log('Current place: ', currentPageStartID);
+		// console.log('Full count: ', fullElementCount);
 
 		//back we go for our current pointer
 		currentPageStartID -= fullElementCount;
@@ -293,7 +293,7 @@ function flexforever(divValue, reqOptions)
 		var lowest = isNegative ? endPage : startPage;
 		var highest = isNegative ? startPage : endPage;
 
-		console.log('Summing: ', lowest, ' to ', highest);
+		// console.log('Summing: ', lowest, ' to ', highest);
 
 		var pageSum = 0;
 		for(var i=lowest; i < highest; i++)
