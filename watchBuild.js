@@ -9,7 +9,7 @@ watch(path.resolve(__dirname), function(filename) {
 
 	console.log("File changed: ", filename);  
 
-    if(filename.indexOf("build/build.") == -1)
+    if(filename.indexOf("build/build.") == -1 && filename.indexOf(".git") == -1)
     {
         exec("component build", function(error)
         {

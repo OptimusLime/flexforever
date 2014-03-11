@@ -52,7 +52,7 @@ function flexforever(divValue, reqOptions)
 	    // height: reqOptions.height,
 	    // cssWidthAndHeight : true,
 	    // initialSlide : 0,
-	    // mode:'horizontal',
+	    mode: reqOptions.mode || 'horizontal',
 	    // loop: true
 	    //etc..
 	});  
@@ -235,14 +235,22 @@ function flexforever(divValue, reqOptions)
 	//we're moving to the next slide
 	function nextSlide(sw)
 	{
+		console.log('Slidin -> 2 steps: ', sw.activeSlide().sID);
+
+		var movedTo = sw.activeSlide().sID;
+
 		// console.log('Choo choo on the next train: ', sw);
 		var currentElementCount = pageElementCount(currentDisplayedSlide);
+
 		//hide current, make new visible
 		emitEventForElements('elementHidden', currentPageStartID, currentElementCount);
 
+		//how far are we really moving though? Might not just be a single slide (you can scroll multiple by draggin far distances)
+		var fullElementCount = sumPageCount(currentDisplayedSlide, movedTo);
+
 		//up our current pointer
-		currentPageStartID += currentElementCount;
-		currentDisplayedSlide = Math.min(currentDisplayedSlide + 1, highestPage);
+		currentPageStartID += fullElementCount;
+		currentDisplayedSlide = movedTo;
 
 		//let it be known the our new guys are visible
 		emitEventForElements('elementVisible', currentPageStartID, pageElementCount(currentDisplayedSlide));
@@ -250,15 +258,25 @@ function flexforever(divValue, reqOptions)
 	}
 	function previousSlide(sw)
 	{
+		console.log('Slidin back: ', sw.activeSlide().sID, ' from ', currentDisplayedSlide);
+
+		var movedTo = sw.activeSlide().sID;
+
 		// console.log('back it up, previous please: ', sw);
 		var currentElementCount = pageElementCount(currentDisplayedSlide);
 
 		//hide current, make new visible
 		emitEventForElements('elementHidden', currentPageStartID, currentElementCount);
 
+		//how far are we really moving though? Might not just be a single slide (you can scroll multiple by draggin far distances)
+		var fullElementCount = sumPageCount(currentDisplayedSlide, movedTo);
+
+		console.log('Current place: ', currentPageStartID);
+		console.log('Full count: ', fullElementCount);
+
 		//back we go for our current pointer
-		currentPageStartID -= currentElementCount;
-		currentDisplayedSlide = Math.max(currentDisplayedSlide - 1, 0);
+		currentPageStartID -= fullElementCount;
+		currentDisplayedSlide = movedTo;
 
 		//let it be known the our new guys are visible
 		emitEventForElements('elementVisible', currentPageStartID, pageElementCount(currentDisplayedSlide));
@@ -275,6 +293,8 @@ function flexforever(divValue, reqOptions)
 		var lowest = isNegative ? endPage : startPage;
 		var highest = isNegative ? startPage : endPage;
 
+		console.log('Summing: ', lowest, ' to ', highest);
+
 		var pageSum = 0;
 		for(var i=lowest; i < highest; i++)
 		{	
@@ -283,7 +303,7 @@ function flexforever(divValue, reqOptions)
 		}	
 
 		//return the sum of children in all these pages
-		return (isNegative ? -1 : 1)*pageSum;
+		return pageSum;
 	}
 
 	self.createNewPage = function()
