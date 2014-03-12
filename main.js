@@ -146,12 +146,17 @@ function flexforever(divValue, reqOptions)
 		element.id = objectUID;
 		element.style.width = self.objectSize.width + "px";
 		element.style.height = self.objectSize.height + "px";
+
 		element.style.marginLeft = self.objectSize.rowMargin + "px" || 0;
 		element.style.marginRight = self.objectSize.rowMargin + "px" || 0;
 
 		element.style.marginTop = self.objectSize.columnMargin + "px" || 0;
 		element.style.marginBottom = self.objectSize.columnMargin + "px" || 0;
-		element.style.border = (self.borderSize ? (self.borderSize + "px solid black") : 0);
+
+		// element.style.border = (self.borderSize ? (self.borderSize + "px solid black") : 0);
+
+		//make it a border class element
+		element.className += "border";
 
 		element.style.overflow = "hidden";
 

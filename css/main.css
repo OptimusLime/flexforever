@@ -10,6 +10,11 @@ body
 	height:100%;
 }
 
+.border
+{
+	border: 1px solid black;
+}
+
 .swiper-container
 {
 	width:100%;
