@@ -27,6 +27,11 @@ function flexforever(divValue, reqOptions)
 
 	self.objectSize = reqOptions.objectSize;
 
+	reqOptions.extraHeightPerObject = reqOptions.extraHeightPerObject || 0;
+
+	//add a certain amount to our height object to compensate for any additional padding
+	self.objectSize.height = self.objectSize.height + reqOptions.extraHeightPerObject;
+
 	var swipeBase = self.uid + "-swiper-#@#";
 	var swipeConID = swipeBase.replace(/#@#/g, "container");
 	var swipeWrapID = swipeBase.replace(/#@#/g, "wrapper");
