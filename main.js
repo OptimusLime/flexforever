@@ -17,6 +17,9 @@ function flexforever(divValue, reqOptions)
 	if(!reqOptions || !reqOptions.objectSize || !reqOptions.objectSize.width || !reqOptions.objectSize.height)
 		throw new Error("Can't use flexforever without options or objectSize");
 
+	//deep clone the required options object
+	reqOptions = JSON.parse(JSON.stringify(reqOptions));
+
 	//add emitter properties to this object
 	Emitter(self);
 
